@@ -12,14 +12,14 @@ import java.text.DecimalFormat;
 public class World extends JPanel{
     
     //CONSTANT parameters
-    private final int DELAY = 20; //speed of the simluation
+    private final int DELAY = 50; //speed of the simluation
     final static int MAP_WIDTH = 30;
     final static int MAP_HEIGHT = 30;
-    final static int CREATURE_NUMBER = 30;
-    final static int MONSTER_NUMBER = 10;
+    final static int CREATURE_NUMBER = 100;
+    final static int MONSTER_NUMBER = 25;
     final static int RATIO = 30;
     final static int MUSHROOM_NUMBER = 20;
-    final static int FOOD_NUMBER = 20;
+    final static int FOOD_NUMBER = 50;
     final static int setTime = 50;
     
     static int time;
@@ -123,55 +123,59 @@ public class World extends JPanel{
             creaturesLeft = count;
             
             creatureLabel.setText("Creatures left: " + (Integer.toString (creaturesLeft)) + "/"+ CREATURE_NUMBER);
-            DecimalFormat df = new DecimalFormat("#.00");
-            fitnessLabel.setText("Average fitness: " + df.format(aveFitness()));
+           
             
             mushroomCount = countArray(mushrooms_location);
-            foodCount = countArray(strawberries_location);      
+            foodCount = countArray(strawberries_location);
             maxMushroom.setText ("Mushrooms left " + mushroomCount + "/" + MUSHROOM_NUMBER );
             maxFood.setText("Food left: " + foodCount + "/" + FOOD_NUMBER);
             
-          
-          
-          if(time <= 0 ||creaturesLeft == 0 ){
-              timer.stop();
-              parents = new Creature [creaturesLeft]; //create a new array for eligible parents (those who are still alive)
-              int j = 0;
-              for (int i =0; i < creatures.length;i++){ // 
-                  if (creatures[i].isAlive()){
-                      parents[j] = creatures[i];
-                      j++;
-                  }
-//                  
-              }
-              
-              double totalFitness =0;
-              
-              for (int i=0;i< parents.length;i++) {
-                  totalFitness += parents[i].getFitness();
-                  System.out.println (parents[i].getFitness());
-              }
-              
-              System.out.println(totalFitness);
-//              
-              for (Creature parent : parents) {
-                  parent.fitnessNormalised = (parent.getFitness() / totalFitness);
-              }
-//              
-              for (Creature parent : parents) {
-                  System.out.println(parent.fitnessNormalised);
-              }
-//              
-              
-              
-              
-              
-              
-//              
-//               System.out.println("Parents count:  " + parents.length);
+            
+            
+            if(time <= 0 ||creaturesLeft == 0 ){
+                timer.stop();
+                DecimalFormat df = new DecimalFormat("#.00");
+                fitnessLabel.setText("Average fitness: " + df.format(aveFitness()));
+                
+                
+                
+                
+                parents = new Creature [creaturesLeft]; //create a new array for eligible parents.
+                int j = 0;
+                for (int i =0; i < creatures.length;i++){ //
+                    if (creatures[i].isAlive()){
+                        parents[j] = creatures[i];
+                        j++;
+                    }
+//
+                }
+                
+                double totalFitness =0;
+                
+                for (int i=0;i< parents.length;i++) {
+                    totalFitness += parents[i].getFitness();
+    //                System.out.println (parents[i].getFitness());
+                }
+                
+      //          System.out.println(totalFitness);
+                
+                for (Creature parent : parents) {
+                    parent.fitnessNormalised = (parent.getFitness() / totalFitness);
+                }
+                
+//                for (Creature parent : parents) {
+//                    System.out.println(parent.fitnessNormalised);
+//                }
+                
 
-             
-          }
+                
+                nextGen(); //nuke the world
+                timer.start();
+
+
+
+
+            }
           
           else if (time%3==0){
               for (int j =0;j < monsters.length;j++){
@@ -307,7 +311,10 @@ while (food > 0){
         
         for (i = 0; i < parentlist.length; i++){
             sum += parentlist[i].fitnessNormalised;
-            if (sum > threashold) return parentlist[i];
+            if (sum > threashold){
+                System.out.println("Parent :" + i);
+                return parentlist[i];
+            }
         }
         return parentlist[0];
     }
@@ -449,7 +456,11 @@ frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
 frame.pack();
 frame.setVisible(true);
 
-
+//Creature c = new Creature();
+//
+//for (int i = 0; i < 10;i++){
+//    c.nextTurn();
+//}
 
 
 
@@ -465,18 +476,18 @@ frame.setVisible(true);
       
         for (Creature parent : parents) {
             totalFitness += parent.getFitness();
-            System.out.println(parent.getFitness());
+      //      System.out.println(parent.getFitness());
         }
       
-      System.out.println(totalFitness);
+  //    System.out.println(totalFitness);
       
         for (Creature parent : parents) {
             parent.fitnessNormalised = (parent.getFitness() / totalFitness);
         }
       
-        for (Creature parent : parents) {
-            System.out.println(parent.fitnessNormalised);
-        }
+//        for (Creature parent : parents) {
+//            System.out.println(parent.fitnessNormalised);
+//        }
   }
   
   
@@ -529,11 +540,11 @@ frame.setVisible(true);
       double totalFitness =0;
       
       for (int i=0; i < creatures.length;i++){
-          totalFitness+= creatures[i].getFitness();
+              totalFitness+= creatures[i].getHealth();
       }
-      return totalFitness/creatures.length;
+      return (totalFitness/creatures.length);
+      
   }
-  
 }
 
 
