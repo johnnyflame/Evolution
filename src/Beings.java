@@ -127,22 +127,49 @@ public abstract class Beings {
   //          System.out.println("Up");
             
         }
+        else if (this.locationY == 0 && d == Directions.NORTH){
+            map[this.locationY][this.locationX]--;
+            map[World.MAP_HEIGHT-1][this.locationX]++;
+            this.locationY = World.MAP_HEIGHT-1;
+  //          System.out.println("Up");
+            
+        }
         else if (this.locationX > 0 && d == Directions.WEST){
             map[this.locationY][this.locationX]--;
             map[this.locationY][this.locationX-1]++;
             this.locationX--;
     //        System.out.println("Left");
         }
+        
+        else if (this.locationX == 0 && d == Directions.WEST){
+            map[this.locationY][this.locationX]--;
+            map[this.locationY][World.MAP_WIDTH-1]++;
+            this.locationX = World.MAP_WIDTH-1;
+    //        System.out.println("Left");
+        }
+        
         else if (this.locationY < World.MAP_HEIGHT - 1 && d == Directions.SOUTH){
             map[this.locationY][this.locationX]--;
             map[this.locationY+1][this.locationX]++;
             this.locationY++;
     //        System.out.println("Down");
         }
+        else if (this.locationY ==  World.MAP_HEIGHT - 1 && d == Directions.SOUTH){
+            map[this.locationY][this.locationX]--;
+            map[World.MAP_HEIGHT - (World.MAP_HEIGHT -1)][this.locationX]++;
+            this.locationY = World.MAP_HEIGHT - (World.MAP_HEIGHT -1);
+    //        System.out.println("Down");
+        }
         else if (this.locationX < World.MAP_WIDTH -1 && d == Directions.EAST){
             map[this.locationY][this.locationX]--;
             map[this.locationY][this.locationX+1]++;
             this.locationX ++;
+    //        System.out.println("Right");
+        }
+        else if (this.locationX == World.MAP_WIDTH -1 && d == Directions.EAST){
+            map[this.locationY][this.locationX]--;
+            map[this.locationY][World.MAP_WIDTH- (World.MAP_WIDTH -1)]++;
+            this.locationX = World.MAP_WIDTH- (World.MAP_WIDTH -1);
     //        System.out.println("Right");
         }
     }
@@ -154,10 +181,23 @@ public abstract class Beings {
             this.locationY++;
     //        System.out.println("Down");
         }
+        if (this.locationY == World.MAP_HEIGHT - 1  && d == Directions.NORTH){
+             map[this.locationY][this.locationX]--;
+             map[World.MAP_HEIGHT - (World.MAP_HEIGHT -1)][this.locationX]++; 
+            this.locationY = World.MAP_HEIGHT - (World.MAP_HEIGHT -1);
+    //        System.out.println("Down");
+        }
         else if (this.locationX < World.MAP_WIDTH -1  && d == Directions.WEST){
              map[this.locationY][this.locationX]--;
              map[this.locationY][this.locationX+1]++;
             this.locationX++;
+   //         System.out.println("Right");
+        }
+        
+        else if (this.locationX == World.MAP_WIDTH -1  && d == Directions.WEST){
+             map[this.locationY][this.locationX]--;
+             map[this.locationY][World.MAP_WIDTH - (World.MAP_WIDTH -1)]++;
+            this.locationX = World.MAP_WIDTH - (World.MAP_WIDTH -1);
    //         System.out.println("Right");
         }
         else if (this.locationY > 0 && d == Directions.SOUTH){
@@ -166,10 +206,22 @@ public abstract class Beings {
             this.locationY--;
    //         System.out.println("Up");
         }
+        else if (this.locationY == 0 && d == Directions.SOUTH){
+             map[this.locationY][this.locationX]--;
+             map[World.MAP_HEIGHT - 1][this.locationX]++;
+            this.locationY = World.MAP_HEIGHT -1;
+   //         System.out.println("Up");
+        }
         else if (this.locationX  > 0 && d == Directions.EAST){
             map[this.locationY][this.locationX]--;
             map[this.locationY][this.locationX-1]++;
             this.locationX --;
+    //        System.out.println("Left");
+        }
+        else if (this.locationX  == 0 && d == Directions.EAST){
+            map[this.locationY][this.locationX]--;
+            map[this.locationY][World.MAP_WIDTH - (World.MAP_WIDTH -1)]++;
+            this.locationX = World.MAP_WIDTH - (World.MAP_WIDTH -1);
     //        System.out.println("Left");
         }
     }
