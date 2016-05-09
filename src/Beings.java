@@ -69,14 +69,7 @@ public abstract class Beings {
     public Directions nearest(int [][] target){
         Directions direction = null;
         int quantity = 0;
-        //DEBUG 2D array and XY coordinates.
-        //NOTE: May yield off by 1 error, come back and -1 off MAP_WIDTH if it happens.
-        //NOTE2: Check if X Y coordinates are in correct order once frontend is completed.
-        //while(notFound){
-        //int width = 1;
-        //for(int i = this.locationX-width; i <= this.locationX+width; i++){
-        //   for(int j = this.locationX-width; j<= this.locationX+width; j++)
-        // width++;
+      
         if (this.locationX < World.MAP_WIDTH-1 && target[this.locationY][this.locationX+1] > quantity){
             direction = Directions.EAST;
         }
@@ -107,7 +100,7 @@ public abstract class Beings {
         if (this.locationY < World.MAP_HEIGHT-2 && target[this.locationY+2][this.locationX] > quantity){
             direction = Directions.SOUTH;
         }
-         
+        
         }
         
         return direction;
@@ -168,7 +161,7 @@ public abstract class Beings {
         }
         else if (this.locationX == World.MAP_WIDTH -1 && d == Directions.EAST){
             map[this.locationY][this.locationX]--;
-            map[this.locationY][World.MAP_WIDTH- (World.MAP_WIDTH -1)]++;
+            map[this.locationY][World.MAP_WIDTH - (World.MAP_WIDTH -1)]++;
             this.locationX = World.MAP_WIDTH- (World.MAP_WIDTH -1);
     //        System.out.println("Right");
         }
