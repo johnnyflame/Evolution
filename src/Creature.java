@@ -111,8 +111,17 @@ public class Creature extends Beings{
         if (parent1.fitnessNormalised > parent2.fitnessNormalised){
             this.chromosome[6] = parent1.chromosome[6];
         }
-        else{
+        else if (parent2.fitnessNormalised > parent1.fitnessNormalised){
              this.chromosome[6] = parent2.chromosome[6];
+        }
+        else {
+            boolean coinToss = r.nextBoolean();
+            if (coinToss == true){
+                this.chromosome[6] = parent1.chromosome[6];
+            }
+            else{
+                this.chromosome[6] = parent2.chromosome[6];
+            }
         }
       
         //if creature is mutated, the default action is not inherited, but randomly generated instead.
@@ -164,7 +173,7 @@ public class Creature extends Beings{
          
         }
        else if (item == World.strawberries_location){
-           energy_level += 10;
+           energy_level += 50;
            World.strawberries_location[this.locationY][this.locationX]--;
            System.out.println ("Health bonus!"); 
            
