@@ -14,7 +14,7 @@ public class Creature extends Beings{
     //  private Behaviour [] listOfActions = new Behaviour [6];
     private Random r = new Random();
     private boolean alive;
-    protected double fitness;
+    private double fitness;
     protected double fitnessNormalised;
     boolean isMutated = false;
     
@@ -30,7 +30,7 @@ public class Creature extends Beings{
      */
     
     public Creature(){
-        energy_level = 100; 
+        energy_level = World.SET_HEALTH; 
     
         alive = true;
         //setting location by random.
@@ -60,7 +60,7 @@ public class Creature extends Beings{
     
  
     public Creature(Creature parent1,Creature parent2){ //this will be the breeding constructor.
-        energy_level = 100;
+        energy_level = World.SET_HEALTH;
         alive = true;
         //setting location by random.
         locationX = r.nextInt(World.MAP_WIDTH);
@@ -76,7 +76,9 @@ public class Creature extends Beings{
         
         
         
-        int schemaLine = r.nextInt(6);
+        int schemaLine = 2; 
+        
+        if (r.nextBoolean()){
         
         for (int i = 0; i < schemaLine;i++){
             this.chromosome[i] = parent1.chromosome[i];
@@ -87,25 +89,28 @@ public class Creature extends Beings{
             this.chromosome[i] = parent2.chromosome[i];
             this.chromosome[i+7] = parent2.chromosome[i+7];
         }
+        
+        }else{
+            for (int i = 0; i < schemaLine;i++){
+            this.chromosome[i] = parent2.chromosome[i];
+            this.chromosome[i+7] = parent2.chromosome[i+7];
+        }
+        
+            for (int i = schemaLine; i < 6; i++){
+                this.chromosome[i] = parent1.chromosome[i];
+                this.chromosome[i+7] = parent1.chromosome[i+7];
+            }
+        }
                 
         if (parent1.fitnessNormalised > parent2.fitnessNormalised){
             this.chromosome[6] = parent1.chromosome[6];
         }
-        else if (parent2.fitnessNormalised > parent1.fitnessNormalised){
-             this.chromosome[6] = parent2.chromosome[6];
-        }
-        else {
-            boolean coinToss = r.nextBoolean();
-            if (coinToss == true){
-                this.chromosome[6] = parent1.chromosome[6];
-            }
-            else{
-                this.chromosome[6] = parent2.chromosome[6];
-            }
+        else{
+             this.chromosome[6] = parent2.chromosome[6];       
         }
       
         //if creature is mutated, the default action is not inherited, but randomly generated instead.
-        int mutation = r.nextInt(100);
+        int mutation = r.nextInt(500);
         if (mutation == 5){
             isMutated = true;
             this.colour = Color.MAGENTA;
@@ -139,6 +144,7 @@ public class Creature extends Beings{
             }
         }
     }
+    
         
 
     
@@ -148,7 +154,7 @@ public class Creature extends Beings{
     }
     
     public double getFitness(){
-        return energy_level;
+        return fitness;
     }
     
     
@@ -255,43 +261,31 @@ public class Creature extends Beings{
 
    
    public void nextAction(int index){
-       
-       //checking for bugs here.
-   //    System.out.println("Action index is:" + actionIndex());
    
    if (index ==6){
-       System.out.println("Default: index 6");
        if(chromosome[index] == 0){
-            System.out.println("Default: index 6, 0");
            move(World.creature_location,randomWalk());
        }
        else if (chromosome[index] == 1){
-             System.out.println("Default: index 6, 1");
            move(World.creature_location,Directions.NORTH);
        }
        else if (chromosome[index] == 2){
-             System.out.println("Default: index 6, 2");
            move(World.creature_location,Directions.SOUTH);
        }
        else if (chromosome[index] == 3){
-             System.out.println("Default: index 6, 3");
            move(World.creature_location,Directions.EAST);
        }
        else if (chromosome[index] == 4){
-             System.out.println("Default: index 6, 4");
            move(World.creature_location,Directions.WEST);
        }
    }
    
    //action 0: if mush is present
    else if (index ==0){
-         System.out.println("Default: index 0");
        if (chromosome[index] == 1 && mushPresent()){
-             System.out.println("Default: index 0, 1");
              eat(World.mushrooms_location);
        }
        else{
-           System.out.println("Default: index 0, 0");
            move(World.creature_location,randomWalk());
            //     System.out.println("Didn't eat mushroom.");
        }
@@ -301,16 +295,11 @@ public class Creature extends Beings{
    else if (index==1){
           
        if (chromosome[index] ==1 && foodPresent()){
-           System.out.println("Default: index 1, 1");
            eat(World.strawberries_location);
            //  System.out.println("Delicious.");
        }
        else{        
-           System.out.println("Default: index 1, 0");
            move(World.creature_location,randomWalk());
-           //             System.out.println("eatFood?" + chromosome[actionIndex()] );
-           //              System.out.println("Didn't eat food.");
-//               fitnessValue -=5;
            }
        }
        
@@ -319,18 +308,13 @@ public class Creature extends Beings{
            //going towards nearest mushroom.
            switch (chromosome[index]) {
                case 1:
-                   System.out.println(" index+ " + index + ",1");
                    move(World.creature_location,nearest(World.mushrooms_location));
-                   energy_level-=10;
                    break;
                case 2:
                    //move away from mushroom.
-                   System.out.println("index+ " + index + ",2");
                    moveAway(World.creature_location,nearest(World.mushrooms_location));
-//                   energy_level += 2; //"encouragement for evading poison"
                    break;
                case 3:
-                   System.out.println(" index+ " + index + ",3");
                    if(r.nextBoolean()){
                        move(World.creature_location,nearest(World.mushrooms_location));
                    }
@@ -348,13 +332,10 @@ public class Creature extends Beings{
            switch (chromosome[index]) {
                case 1:
                    move(World.creature_location,nearest(World.strawberries_location));
-//                    energy_level += 2;
-//                   fitnessValue+=5;
                    break;
                case 2:
                    //move away from food.
                    moveAway(World.creature_location,nearest(World.strawberries_location));
-//                   fitnessValue-=5;
                    break;
                case 3:
                    if(r.nextBoolean()){
@@ -399,12 +380,10 @@ public class Creature extends Beings{
            switch (chromosome[actionIndex()]) {
                case 1:
                    move(World.creature_location,nearest(World.monster_location));
-//                   fitnessValue-=5;
                    break;
                case 2:
                    //move away from creature.
-                   moveAway(World.creature_location,nearest(World.monster_location));
-                      energy_level+=10;
+                   moveAway(World.creature_location,nearest(World.monster_location));                  
                    break;
                case 3:
                    if(r.nextBoolean()){
@@ -430,11 +409,18 @@ public class Creature extends Beings{
        this.energy_level--;
    }
    
+   public void incrementFitness(){
+       fitness++;
+   }
+   
    public void statusCheck(){
-       if (energy_level == 0) {
+       if (energy_level <= 0) {
            alive = false;
-           World.creature_location[this.locationY][this.locationX]--;
+           World.creature_location[this.locationY][this.locationX]--;          
        }
+       
+          
+       
    }
    
    public void monsterCheck(){
