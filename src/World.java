@@ -12,15 +12,17 @@ import java.text.DecimalFormat;
 public class World extends JPanel{
     
     //CONSTANT parameters
-    private final int DELAY = 50; //speed of the simluation
-    final static int MAP_WIDTH = 30;
-    final static int MAP_HEIGHT = 30;
-    final static int CREATURE_NUMBER = 100;
-    final static int MONSTER_NUMBER = 25;
-    final static int RATIO = 30;
-    final static int MUSHROOM_NUMBER = 20;
-    final static int FOOD_NUMBER = 50;
-    final static int setTime = 50;
+    private final int DELAY = 100; //speed of the simluation
+    final static int MAP_WIDTH = 100;
+    final static int MAP_HEIGHT = 100;
+    final static int CREATURE_NUMBER = 400;
+    final static int MONSTER_NUMBER = 80;
+    final static int RATIO = 10;
+    final static int MUSHROOM_NUMBER = 100;
+    final static int FOOD_NUMBER = 200;
+    final static int setTime = 90;
+    final static int SET_HEALTH = 100;
+    
     
     static int time;
     
@@ -31,11 +33,11 @@ public class World extends JPanel{
     static int mushroomCount;
     static int foodCount;
     static int averageFitness;
+    static String fitnessData;
     
     static Random r = new Random();
     static Monster monsters[] = new Monster[MONSTER_NUMBER];
     static Creature [] creatures = new Creature [CREATURE_NUMBER];
-    static Creature [] parents;
    
     //integer array holding the location information of food,poison
     //monster and creatures.
@@ -60,6 +62,7 @@ public class World extends JPanel{
     private JLabel maxMushroom = new JLabel ("Starting mushrooms " + MUSHROOM_NUMBER );
     private JLabel maxFood = new JLabel("Starting food: " + FOOD_NUMBER);
     private JLabel fitnessLabel = new JLabel("Average fitness: ");
+    private JTextField fitnessDisplay = new JTextField ("----");
     
    
     
@@ -67,7 +70,7 @@ public class World extends JPanel{
     private String[] buttonLabels =  {"Initialize", "NextGen", "Pause","Resume"};
     private JButton [] controlButton = new JButton[buttonLabels.length];
     
-    Timer timer; //revise how to use a timer.  
+    Timer timer; 
     
 
     public World(){
@@ -83,6 +86,7 @@ public class World extends JPanel{
         controlPanel.add (timeLabel);
         controlPanel.add(creatureLabel);
         controlPanel.add(fitnessLabel);
+        controlPanel.add(fitnessDisplay);
         
         
       
@@ -131,44 +135,39 @@ public class World extends JPanel{
             maxFood.setText("Food left: " + foodCount + "/" + FOOD_NUMBER);
             
             
+            for (int k = 0;k<creatures.length;k++){
+              
+              creatures[k].statusCheck();
+              creatures[k].monsterCheck();
+              if (creatures[k].isAlive()){
+                 creatures [k].incrementFitness();
+                  creatures[k].nextTurn();
+              }
+          }
             
             if(time <= 0 ||creaturesLeft == 0 ){
                 timer.stop();
                 DecimalFormat df = new DecimalFormat("#.00");
-                fitnessLabel.setText("Average fitness: " + df.format(aveFitness()));
+                fitnessData += ("Generation:" + generation + ": \t" + df.format(aveFitness()) + "\n");
+                fitnessDisplay.setText( df.format(aveFitness()) + "%");
                 
-                
-                
-                
-                parents = new Creature [creaturesLeft]; //create a new array for eligible parents.
-                int j = 0;
-                for (int i =0; i < creatures.length;i++){ //
-                    if (creatures[i].isAlive()){
-                        parents[j] = creatures[i];
-                        j++;
-                    }
-//
-                }
                 
                 double totalFitness =0;
                 
-                for (int i=0;i< parents.length;i++) {
-                    totalFitness += parents[i].getFitness();
-    //                System.out.println (parents[i].getFitness());
+                for (int i=0;i< creatures.length;i++) {
+                    totalFitness += creatures[i].getFitness();
+                    System.out.println (creatures[i].getFitness());
                 }
                 
-      //          System.out.println(totalFitness);
                 
-                for (Creature parent : parents) {
+                for (Creature parent : creatures) {
                     parent.fitnessNormalised = (parent.getFitness() / totalFitness);
+                    System.out.println(parent.fitnessNormalised);
                 }
-                
-//                for (Creature parent : parents) {
-//                    System.out.println(parent.fitnessNormalised);
-//                }
+               
                 
 
-                
+             
                 nextGen(); //nuke the world
                 timer.start();
 
@@ -184,15 +183,8 @@ public class World extends JPanel{
           }
           
               
-          for (int k = 0;k<creatures.length;k++){
-              
-              creatures[k].statusCheck();
-              creatures[k].monsterCheck();
-              if (creatures[k].isAlive()){
-                  creatures[k].nextTurn();
-              }
-          }
-        time--;
+          
+          time--;
       }
       
       else{
@@ -208,20 +200,11 @@ public class World extends JPanel{
             
 
             nextGen(); //nuke the world
-            timer.start();
-            
-            
-           
-           
-           
-           
-           
-           
+            timer.start();           
         }
-          
-        
         else  if (button.getText().equals ("Pause")){
             timer.stop();
+            System.out.println(fitnessData);
         }
         else  if (button.getText().equals ("Resume")){
             timer.start();
@@ -244,11 +227,30 @@ public class World extends JPanel{
         creaturesLeft = 0;
         generation++;
         
+        int elites = 1;
         
-        creatures[0] = pickParent(parents);
         
-        for (int i = 1; i < creatures.length;i++){
-             creatures[i] = new Creature(pickParent(parents),pickParent(parents));
+        //Elitism, a portion of previous generation is kept on the world.
+        
+        for (int i = 0; i < elites; i++){ 
+        creatures[i] = fittestCreature(creatures); //make a copy of the elite
+        creaturesLeft++;
+        }
+        
+        // 10 percent of next generation will be born from the fittest creature and another creature chosen by roulette
+        // The king and his many wives.
+        int elitebreed = CREATURE_NUMBER / 10; 
+        
+        for (int i = elites; i < elitebreed; i++){
+            creatures[i] = new Creature (fittestCreature(creatures),pickParent(creatures));
+            creaturesLeft++;
+        }
+        
+        
+        
+        
+        for (int i = elitebreed; i < creatures.length;i++){
+             creatures[i] = new Creature(pickParent(creatures),pickParent(creatures));
              creature_location[creatures[i].getLocationY()][creatures[i].getLocationX()]++;
              creaturesLeft++;
         }
@@ -298,9 +300,7 @@ while (food > 0){
         }
     }
 }
-       
-        
-        
+     
     }
 
 
@@ -308,15 +308,14 @@ while (food > 0){
         double threashold = r.nextDouble();
         double sum = 0;
         int i = 0;
-        
-        for (i = 0; i < parentlist.length; i++){
-            sum += parentlist[i].fitnessNormalised;
-            if (sum > threashold){
-                System.out.println("Parent :" + i);
-                return parentlist[i];
-            }
-        }
-        return parentlist[0];
+        Creature selected = parentlist[0];
+         for (i = 0; i < creatures.length;i++){
+             sum += parentlist[i].fitnessNormalised;
+             if(sum > threashold){
+                 selected = parentlist[i];
+             }
+         }
+            return selected;
     }
     
     
@@ -470,27 +469,6 @@ frame.setVisible(true);
     
     
 
-  private static void selection(){
-      
-      double totalFitness =0;
-      
-        for (Creature parent : parents) {
-            totalFitness += parent.getFitness();
-      //      System.out.println(parent.getFitness());
-        }
-      
-  //    System.out.println(totalFitness);
-      
-        for (Creature parent : parents) {
-            parent.fitnessNormalised = (parent.getFitness() / totalFitness);
-        }
-      
-//        for (Creature parent : parents) {
-//            System.out.println(parent.fitnessNormalised);
-//        }
-  }
-  
-  
   
   
   
@@ -536,13 +514,27 @@ frame.setVisible(true);
       return count;
   }
   
+  
+  private static Creature fittestCreature(Creature[] candidates){
+      
+      Creature fittest = candidates [0];
+      
+      for (int i = 0; i < candidates.length; i++){
+          if (candidates[i].getFitness() > fittest.getFitness()){
+              fittest = candidates[i];
+          }
+      }
+      return fittest; 
+  }
+  
+  
   private static double aveFitness(){
       double totalFitness =0;
       
       for (int i=0; i < creatures.length;i++){
-              totalFitness+= creatures[i].getHealth();
+              totalFitness+= creatures[i].getFitness();
       }
-      return (totalFitness/creatures.length);
+      return (totalFitness/(setTime * CREATURE_NUMBER) * 100);
       
   }
 }
